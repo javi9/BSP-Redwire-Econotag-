@@ -17,6 +17,7 @@ OBJ_DIR        = $(BSP_ROOT_DIR)/obj
 
 # Directorio de la toolchain de GNU
 TOOLS_PATH     = /home/javi9/Documentos/build
+#TOOLS_PATH = /home/javi9/Documentos/toolchain
 
 
 #

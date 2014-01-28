@@ -15,35 +15,25 @@ ENTRY(_vector_table)
 MEMORY
 {
         ram   : org = 0x00400000,       len = 0x00018000        /*  96 KB */
-	flash : org = 0x00000000,	len =0x00100000
+	flash : org = 0x00000000,	len = 0x00100000
 }
 
 SECTIONS
 {
 	/* Imagen del firmware */
 	/* Generar una sección al principio de la RAM que organice las secciones del firmware al comienzo de la RAM de la 	plataforma */
-
-	.startup:
+	.startup :
 	{
 		*(.startup);	// Este codigo fuerza al cargador a ejecutar la primera instruccion desde la flash
 	} > flash
 
-	/* Seccion .vectors*/
-	.vectors:
-	{
-		. + 0x20;	    // Reservamos espacio para la tabla de vectores y la tabla de manejadores
-		_excep_handlers = .;
-		. += 0x20;	
-	} > ram
-	_ram_base_boot = 0x00300000; // Direccion de inicio de la ram antes del remapeo
 
-	.text:
-	{
-		_text_start = .;
+	.text : {
+		_text_start = . ;
 		*(.text);	// El cargador se ejecuta desde la flash
-		_text_end = .;
+		_text_end = . ;
 	} > ram AT > flash
-	_text_flash_start = LOADADDR(.text);
+	_text_flash_start = LOADADDR(.text) ;
 
 
 	/* Seccion .rodata*/
@@ -51,16 +41,16 @@ SECTIONS
 	.rodata :
 	{
 		*(.rodata*);
-		. =ALING(4);
-	}> flash
+		. = ALIGN(4) ;
+	} > flash
 
 	/* Seccion .data*/
 	/* Generamos una seccion para varibles inicializadas */
-	.data:
+	.data :
 	{
 		_data_start = .;
 		*(.data);
-		.=ALING(4);
+		. = ALIGN(4);
 		_data_end= .;
 	} > ram AT > flash
 	_data_flash_start= LOADADDR(.data);
@@ -73,12 +63,12 @@ SECTIONS
 	*/
 	.bss : 
 	{
-		_bss_start= .;
+		_bss_start= . ;
 		*(.bss);
-		. = ALING(4);
+		. = ALIGN(4);
 		*(COMMON);// Variables sin inicializar
-		. = ALING(4);
-		_bss_end= .;
+		. = ALIGN(4);
+		_bss_end= . ;
 	} > ram	
 
 	 /* Gestión de las pilas */
@@ -96,7 +86,7 @@ SECTIONS
 	_und_stack_size =16 ;
 	_stacks_size = _stacks_top - _stacks_bottom ;
 
-	.stack _ram_limit - _stack_size:
+	.stack _ram_limit - _stack_size :
 	{
 		_stacks_bottom = . ;
 		. += _sys_stack_size ;
@@ -119,11 +109,11 @@ SECTIONS
 	/* Gestión del heap */
 	/* Generar una sección que ocupe el espacio entre la sección .bss y las pilas para el heap, con los símbolos de inicio y 		   fin del heap */
 	_heap_size = _stack_bottom - _bss_end;
-	.heap _bss_end:
+	.heap _bss_end :
 	{
-		_heap_start= .;
+		_heap_start= . ;
 		. += heap_size;		//Ubicamos el heap desde el final de .bss hasta el comienzo de la pila.
-		_heap_end= .;	
+		_heap_end= . ;	
 	}
 
 
