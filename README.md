@@ -28,7 +28,8 @@ PRÁCTICAS:
   Diseñar un script de enlazado para el bsp, que nos permita ejecutar código C en la placa.
   Construir BSP. 
 
-  Practica 7
+  Practica 7:
+  
   Añadir soporte de excepciones al BSP.
   También se añadirá soporte para habilitar y deshabilitar interrupciones, de forma que se puedan implementar secciones críticas en las apliciones para asegurar el acceso secuencial a los recursos compartidos.
   
