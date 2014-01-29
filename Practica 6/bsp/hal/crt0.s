@@ -1,6 +1,6 @@
 @
 @ Sistemas Empotrados
-@ CRT0 para el Econotag. El bootloader de la ROM limpia la RAM y
+@ CRT0 para el Econotag. El boot loader de la ROM limpia la RAM y
 @ carga la imagen desde la Flash
 @
 
@@ -14,6 +14,8 @@
 	.set _ABT_MODE, 0x17
 	.set _UND_MODE, 0x1B
 	.set _SYS_MODE, 0x1F
+
+.set _STACK_FILLER, 0xdeadbeef
 
 @
 @ Sección de código de arranque
@@ -41,6 +43,7 @@ _vector_table:
 @ Tabla de direcciones absolutas de los manejadores
 @
 	.globl	_excep_handlers
+
 _excep_handlers:
 	.word	_soft_reset_handler
 	.word	_undef_handler
@@ -77,26 +80,6 @@ _irq_handler:
 _fiq_handler:
 	b	.
 
-
-@ Copiamos las tablas de vectores y de manejadores a la RAM
-	.globl _setup_vectors
-_setup_vectors:
-	sub	r8,pc, #(8+.-_vector_table)
-	ldr	r9, =_ram_base_boot
-	ldmia	r8!, {r0-r7}
-	stmia	r9!, {r0-r7}
-	ldmia	r8!, {r0-r7}
-	stmia	r9!, {r0-r7}
-
-@heap
-
-	ldr	a1,=_heap_start
-	ldr	a2,=_heap_end
-	ldr	a3,=0
-	bl	_ram_init
-
-
-
 @
 @ Comienza el CRT
 @
@@ -109,71 +92,79 @@ _start:
 @ Inicializamos las pilas para cada modo
 @
 
-	ldr	a1, =_stack_bottom
-	ldr	a2, =_stack_top
-	ldr	a3, =_STACK_FILLER
-	bl	_ram_init
+ldr a1,= _stacks_bottom
+ldr a2, = _stacks_top
+ldr a3, = _STACK_FILLER
 
-
+bl	_ram_init
 
 @ Pila del modo Undefined
-	msr cpsr_c, #(_UND_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_und_stack_top
-
+            msr cpsr_c, #(_UND_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_und_stack_top
+            
 @ Pila del modo Abort
-	msr cpsr_c, #(_ABT_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_abt_stack_top
+            msr cpsr_c, #(_ABT_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_abt_stack_top
 
 @ Pila del modo System
-	msr cpsr_c, #(_SYS_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_sys_stack_top
-
+            msr cpsr_c, #(_SYS_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_sys_stack_top
+            
 @ Pila del modo FIQ
-	msr cpsr_c, #(_FIQ_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_fiq_stack_top
-
+            msr cpsr_c, #(_FIQ_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_fiq_stack_top
+            
 @ Pila del modo IRQ
-	msr cpsr_c, #(_IRQ_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_irq_stack_top
-
+            msr cpsr_c, #(_IRQ_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_irq_stack_top
+            
 @ Pila del modo Supervisor
-@ La última para que el cargador siga en modo SVC
-	msr cpsr_c, #(_SVC_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
-	ldr sp, =_svc_stack_top
+@ La última para ver que el cargador siga en modo SVC
+            msr cpsr_c, #(_SVC_MODE | _IRQ_DISABLE | _FIQ_DISABLE)
+            ldr sp, =_svc_stack_top
 
 
 
+
+@ ...
 
 @
 @ Inicialización de la plataforma
+@
+ldr ip, =bsp_init
+mov lr, pc
+bx ip
+
 @ Llamar a la función bsp_init
-
-	ldr	ip, =bsp_init
-	mov	lr,pc
-	bx 	ip
-
-
-
 
 @
 @ Cambiamos a modo User y habilitamos las interrupciones
 @
-	msr	cpsr_c, #_USR_MODE
 
+@ ...
+msr cpsr_c, #_USR_MODE
 
 @
 @ Salto a main
 @
+ldr ip, =main
+mov lr,pc
+bx   ip
 
-	ldr	ip, =main
-	mov	lr, pc
+b	.
 
-	bx	ip
-
+@ ...
 
 @
 @ Colgamos el sistema si main retorna
 @
-	b	.			@ Colgamos el sistema si main retorna
+.size   _start, .-_start
 
-	.size   _start, .-_start
+
+
+.type _ram_init, %function
+_ram_init:
+	cmp a1, a2
+	strne a3, [a1], #+4
+	bne _ram_init
+	mov pc, lr
