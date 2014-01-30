@@ -80,8 +80,7 @@ void pause(void)
 /*
  * Máscara del led que se hará parpadear
  */
-uint32_t the_led_red;
-uint32_t the_led_green;
+uint32_t the_led;
 
 /*
  * Programa principal
