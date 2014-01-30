@@ -15,6 +15,7 @@ ENTRY(_vector_table)
 MEMORY
 {
         ram : org = 0x00400000, len = 0x00018000 /* 96 KB */
+
 }
 
 SECTIONS
@@ -105,5 +106,18 @@ SECTIONS
          _heap_start = .; /* En la siguiente palabra de memoria */
          . += _heap_size; /* a _bss_end */
          _heap_end = .;
-    }       
+    	}
+
+/* No puedo crear en el linker los registros ?¿?¿?¿? */
+/*	.gpio : 
+	{	
+		reg_gpio_pad_dir0 =  . + 0x00000000;
+		reg_gpio_pad_dir1 =  . + 0x00000004; 
+		reg_gpio_data0 =  . + 0x00000008;
+		reg_gpio_data_set0 = . + 0x00000048;
+		reg_gpio_data_set1 =  . + 0x0000004c;
+		reg_gpio_data_reset1 = . + 0x00000054;
+	} > gpio
+*/
+	       
 }
