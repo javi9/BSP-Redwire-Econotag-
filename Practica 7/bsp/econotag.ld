@@ -27,7 +27,16 @@ SECTIONS
         {
          *(.startup);
         } > ram
-        
+       
+	.vectors : {
+		. += 0x20 ;
+		_excep_handlers = . ;
+		. += 0x20 ;
+	} > ram
+	_ram_base_boot = 0x00300000;
+	/* Direccion de inicio de la Ram antes del remapeo*/
+
+ 
         /* Código del programa */
         .text :
         {

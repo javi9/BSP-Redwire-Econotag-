@@ -81,12 +81,28 @@ _fiq_handler:
 	b	.
 
 @
+@ Copiamos la tabla de vectores y de manejadores al principio de la ram
+@
+
+.globl _setup_vectors
+
+_setup_vectors:
+	sub	r8, pc, #(8+.-_vector_table)
+	ldr	r9, =_ram_base_boot
+	ldmia	r8!, {r0-r7}
+	stmia	r9!, {r0-r7}
+	ldmia	r8!, {r0-r7}
+	stmia	r9!, {r0-r7}
+
+
+@
 @ Comienza el CRT
 @
 	.align	4
 	.global	_start
 	.type	_start, %function
 _start:
+	b	_setup_vectors	
 
 @
 @ Inicializamos las pilas para cada modo

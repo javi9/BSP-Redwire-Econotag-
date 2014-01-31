@@ -35,7 +35,9 @@ void excep_init ()
 inline uint32_t excep_disable_ints ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 6 */
-	return 0;
+	uint32_t EstadoBits;
+	
+		return 0;
 }
 
 /*****************************************************************************/
@@ -117,7 +119,7 @@ inline void excep_restore_fiq (uint32_t f_bit)
 inline void excep_set_handler (excep_t excep, excep_handler_t handler)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 6 */
-	_except_handlers[except]=handler;
+	_excep_handlers[excep]=handler;
 }
 
 /*****************************************************************************/
@@ -129,7 +131,7 @@ inline void excep_set_handler (excep_t excep, excep_handler_t handler)
 inline excep_handler_t excep_get_handler (excep_t excep)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 6 */
-        return except_handlers[except];
+        return _excep_handlers[excep];
 }
 
 /*****************************************************************************/
