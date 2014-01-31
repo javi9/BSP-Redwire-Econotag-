@@ -112,7 +112,10 @@ uint32_t GpioData;
  */
 int main ()
 {
+	uint32_t sc;
+	sc=excep_disable_ints();
 	gpio_init();
+	excep_restore_ints(sc);
 
         the_led_red = led_red_mask;
 	the_led_green = led_green_mask;

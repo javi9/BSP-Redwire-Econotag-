@@ -148,7 +148,7 @@ inline void excep_restore_fiq (uint32_t f_bit)
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 7 */
 	asm volatile(	"mrs r12, cpsr\n\t"
 			"bic r12, r12, #0x40\n\t"
-			"orr r12, r12, %[b], LSL #5\n\t"
+			"orr r12, r12, %[b], LSL #6\n\t"
 			"msr cpsr_c, r12"
 			:
 			: [b] "r" (f_bit & 1)
