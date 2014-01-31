@@ -42,7 +42,7 @@ inline uint32_t excep_disable_ints ()
 		       "msr cpsr_c, r12"
 			: [b] "=r" (EstadoBits)
 			:
-			: "r12", "cc");
+			: "r12", "c");
 	
 		return ((EstadoBits>>6)&3); /*Devuelve 0 si se ha hecho correctamente*/
 }
@@ -65,7 +65,7 @@ inline uint32_t excep_disable_irq ()
 		       "msr cpsr_c, r12"
 		       :[b] "=r" (EstadoBits)
 		       :
-		       :"r12", "cc");
+		       :"r12", "c");
 	return ((EstadoBits>>7)&1);
 }
 
@@ -87,7 +87,7 @@ inline uint32_t excep_disable_fiq ()
 		       "msr cpsr_c, r12"
 		       :[b] "=r" (EstadoBits)
 		       :
-		       :"r12", "cc");
+		       :"r12", "c");
 	return ((EstadoBits>>6)&1);
 
 }
