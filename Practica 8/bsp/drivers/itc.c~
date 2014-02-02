@@ -13,23 +13,9 @@
 typedef struct
 {
 	/* ESTA ESTRUCTURA SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	uint32_t INTCNTL;
-	uint32_t NIMASK;
-	uint32_t INTENNUM;
-	uint32_t INTDISNUM;
-	uint32_t INTENABLE;
-	uint32_t INTTYPE;
-	uint32_t padding[4]; // Espacio reservado
-	uint32_t NIVECTOR;
-	uint32_t FIVECTOR;
-	uint32_t INTSRC;
-	uint32_t INTFRC;
-	uint32_t NIPEND;
-	uint32_t FIPEND;
-	
 } itc_regs_t;
 
-static volatile itc_regs_t* const itc_regs = 0x80020000;
+static volatile itc_regs_t* const itc_regs = ITC_BASE;
 
 /**
  * Tabla de manejadores de interrupción.
