@@ -31,6 +31,7 @@ typedef struct
 
 static volatile itc_regs_t* const itc_regs = 0x80020000;
 
+static volatile uint32_t Reg_SC;
 /**
  * Tabla de manejadores de interrupción.
  */
@@ -47,6 +48,20 @@ static itc_handler_t itc_handlers[itc_src_max];
 inline void itc_init ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	
+	for (int =0; i<itc_src_max; i++)
+		itc_handler[i]=NULL;
+
+	itc_regs -> INTFRC = 0;
+	
+	itc_regs -> INTENABLE = 0;
+
+	int32_t intcntl, se;
+	sc=excep_disable_ints ();
+	intcntl = itc_regs->INTCNTL;
+	intcntl &= 0xFFE7FFFF;
+	itc_regs -> INTCNTL = intcntl;
+	excep_restore_ints (sc);
 }
 
 /*****************************************************************************/
@@ -55,10 +70,16 @@ inline void itc_init ()
  * Asigna un manejador de interrupción
  * @param src		Identificador de la fuente
  * @param handler	Manejador
- */
+	ok 
+*/
 inline void itc_set_handler (itc_src_t src, itc_handler_t handler)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t sc;
+	sc=excep_disable_ints ();
+	itc_handler_t[src]=handler;
+	excep_restore_ints (sc);
+
 }
 
 /*****************************************************************************/
@@ -71,6 +92,7 @@ inline void itc_set_handler (itc_src_t src, itc_handler_t handler)
 inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+
 }
 
 /*****************************************************************************/
@@ -78,10 +100,15 @@ inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
 /**
  * Habilita las interrupciones de una determinda fuente
  * @param src		Identificador de la fuente
- */
+	ok 
+*/
 inline void itc_enable_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t sc;
+	sc=excep_disable_ints ();
+	itc_reg -> INTENNUM=src;
+	excep_restore_ints (sc);
 }
 
 /*****************************************************************************/
@@ -89,10 +116,16 @@ inline void itc_enable_interrupt (itc_src_t src)
 /**
  * Deshabilita las interrupciones de una determinda fuente
  * @param src		Identificador de la fuente
- */
+ 
+	ok
+*/
 inline void itc_disable_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t sc;
+	sc=excep_disable_ints ();
+	itc_reg -> INTENNUM=src;
+	excep_restore_ints (sc);
 }
 
 /*****************************************************************************/
@@ -100,10 +133,14 @@ inline void itc_disable_interrupt (itc_src_t src)
 /**
  * Fuerza una interrupción con propósitos de depuración
  * @param src		Identificador de la fuente
+
+	ok
  */
+
 inline void itc_force_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	itc_reg -> INTFRC=src;
 }
 
 /*****************************************************************************/
@@ -111,10 +148,13 @@ inline void itc_force_interrupt (itc_src_t src)
 /**
  * Desfuerza una interrupción con propósitos de depuración
  * @param src		Identificador de la fuente
- */
+		
+	ok 
+*/
 inline void itc_unforce_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	itc_reg -> INTFRC=src;
 }
 
 /*****************************************************************************/
@@ -127,16 +167,20 @@ inline void itc_unforce_interrupt (itc_src_t src)
 void itc_service_normal_interrupt ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t src= itc_reg -> NIVECTOR;
+	itc_handler[src]();
 }
 
 /*****************************************************************************/
 
-/**
+/**0
  * Da servicio a la interrupción rápida pendiente de más prioridad
  */
 void itc_service_fast_interrupt ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t src= itc_reg -> FIVECTOR;
+	itc_handler[src]();
 }
 
 /*****************************************************************************/

@@ -80,6 +80,10 @@ _irq_handler:
 _fiq_handler:
 	b	.
 
+@
+@ Copiamos la tabla de vectores y de manejadores al principio de la ram
+@
+
 
 
 
