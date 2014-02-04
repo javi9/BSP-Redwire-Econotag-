@@ -58,10 +58,11 @@ inline void itc_init ()
 	
 	itc_regs -> INTENABLE = 0;
 
-	
+	/*
 	intcntl = itc_regs->INTCNTL;
 	intcntl &= 0xFFE7FFFF;
-	itc_regs -> INTCNTL = intctl;
+	*/
+	itc_regs -> INTCNTL = (3<<19);
 	excep_restore_ints (sc);
 }
 

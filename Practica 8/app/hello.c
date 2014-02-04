@@ -4,7 +4,7 @@
 /* El "hola mundo" en la Redwire EconoTAG en C                               */
 /*                                                                           */
 /*****************************************************************************/
-
+#include <system.h>
 #include <stdint.h>
 
 /*
@@ -98,6 +98,13 @@ void pause(void)
 
 /*****************************************************************************/
 
+void isr_asm(void){
+	itc_unforce_interrupt(itc_src_asm);
+	leds_on(led_green_mask);
+}
+
+/*************************************************************************/
+
 /*
  * Máscara del led que se hará parpadear
  */
@@ -113,9 +120,17 @@ uint32_t GpioData;
 int main ()
 {
 	uint32_t sc;
+	
+	
+	excep_set_handler(excep_irq, excep_nonnested_irq_handler);
+	itc_set_handler(itc_src_asm, isr_asm);
+	itc_enable_interrupt(itc_src_asm);
+	
 	sc=excep_disable_ints();
 	gpio_init();
 	excep_restore_ints(sc);
+
+
 
         the_led_red = led_red_mask;
 	the_led_green = led_green_mask;
@@ -126,19 +141,22 @@ int main ()
 	{
 		GpioData=*(reg_gpio_data0);
 
+
 		if(GpioData & the_s2){
 			leds_on(the_led_red);
-
+			leds_off(the_led_green);
 		}
+
 
 		if(GpioData & the_s3){
 			leds_on(the_led_green);
+			leds_off(the_led_red);
                 }
 
 		pause();
-		leds_off(the_led_green);
-		leds_off(the_led_red);
-                pause();
+		
+		
+         
 
 	}
 
