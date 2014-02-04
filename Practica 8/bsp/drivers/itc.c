@@ -48,15 +48,15 @@ static itc_handler_t itc_handlers[itc_src_max];
 inline void itc_init ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	
-	for (uint32_t =0; i<itc_src_max; i++)
-		itc_handler[i]=NULL;
+	uint32_t i;
+	for ( i=0; i<itc_src_max; i++)
+		itc_handlers[i]=NULL;
 
 	itc_regs -> INTFRC = 0;
 	
 	itc_regs -> INTENABLE = 0;
 
-	int32_t intcntl, se;
+	int32_t intcntl, sc;
 	sc=excep_disable_ints ();
 	intcntl = itc_regs->INTCNTL;
 	intcntl &= 0xFFE7FFFF;
@@ -77,7 +77,7 @@ inline void itc_set_handler (itc_src_t src, itc_handler_t handler)
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
 	int32_t sc;
 	sc=excep_disable_ints ();
-	itc_handler_t[src]=handler;
+	itc_handlers[src]=handler;
 	excep_restore_ints (sc);
 
 }
@@ -96,16 +96,16 @@ inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
 	sc=excep_disable_ints ();
 	
 	if(priority == itc_priority_normal){
-		int_regs -> INTTYPE &= ~(1<<src);
+		itc_regs -> INTTYPE &= ~(1<<src);
 
 	}else if (priority == itc_priority_fast){
 
 			uint32_t n_bit;
-			uint32_t inttype= int_regs->INTTYPE;
-			bool irq_fast=false;
-			for ( n_bit=0; n_bit<itc_src_max && !irq_fast ; n_bit++){
+			uint32_t inttype= itc_regs->INTTYPE;
+			uint32_t irq_fast=0;
+			for ( n_bit=0; n_bit<itc_src_max && irq_fast==0 ; n_bit++){
 				if(inttype & 1 == 1)
-					irq_fast=true;
+					irq_fast=1;
 				inttype = inttype << 1;
 			}
 			/* Aqui ya sabemos que manejador utiliza la interrupcion fas*/
@@ -113,10 +113,10 @@ inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
 			src_fast = src_fast >> n_bit;
 
 			/* Desactivamos la interrupcion fas aplicandole la mascara*/
-			int_regs -> INTTYPE !& = src_fast;
+			itc_regs -> INTTYPE  = src_fast;
 
 			/* Acitvacion de la prioridad fast en la interrupcion con identifador src*/
-			int_regs -> INTTYPE = src; 
+			itc_regs -> INTTYPE = src; 
 		
 				
 		}
@@ -136,7 +136,7 @@ inline void itc_enable_interrupt (itc_src_t src)
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
 	int32_t sc;
 	sc=excep_disable_ints ();
-	itc_reg -> INTENNUM=src;
+	itc_regs -> INTENNUM=src;
 	excep_restore_ints (sc);
 }
 
@@ -153,7 +153,7 @@ inline void itc_disable_interrupt (itc_src_t src)
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
 	int32_t sc;
 	sc=excep_disable_ints ();
-	itc_reg -> INTENNUM=src;
+	itc_regs -> INTENNUM=src;
 	excep_restore_ints (sc);
 }
 
@@ -169,7 +169,7 @@ inline void itc_disable_interrupt (itc_src_t src)
 inline void itc_force_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	itc_reg -> INTFRC=src;
+	itc_regs -> INTFRC=src;
 }
 
 /*****************************************************************************/
@@ -183,7 +183,7 @@ inline void itc_force_interrupt (itc_src_t src)
 inline void itc_unforce_interrupt (itc_src_t src)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	itc_reg -> INTFRC=src;
+	itc_regs -> INTFRC=src;
 }
 
 /*****************************************************************************/
@@ -196,8 +196,8 @@ inline void itc_unforce_interrupt (itc_src_t src)
 void itc_service_normal_interrupt ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	int32_t src= itc_reg -> NIVECTOR;
-	itc_handler[src]();
+	int32_t src= itc_regs -> NIVECTOR;
+	itc_handlers[src]();
 }
 
 /*****************************************************************************/
@@ -208,8 +208,8 @@ void itc_service_normal_interrupt ()
 void itc_service_fast_interrupt ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
-	int32_t src= itc_reg -> FIVECTOR;
-	itc_handler[src]();
+	int32_t src= itc_regs -> FIVECTOR;
+	itc_handlers[src]();
 }
 
 /*****************************************************************************/

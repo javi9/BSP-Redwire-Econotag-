@@ -192,6 +192,7 @@ inline excep_handler_t excep_get_handler (excep_t excep)
 void excep_nonnested_irq_handler ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 7 */
+	itc_service_normal_interrupt();
 }
 
 /*****************************************************************************/
