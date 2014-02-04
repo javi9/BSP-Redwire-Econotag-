@@ -31,7 +31,7 @@ typedef struct
 
 static volatile itc_regs_t* const itc_regs = 0x80020000;
 
-static volatile uint32_t Reg_SC;
+
 /**
  * Tabla de manejadores de interrupción.
  */
@@ -49,7 +49,7 @@ inline void itc_init ()
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
 	
-	for (int =0; i<itc_src_max; i++)
+	for (uint32_t =0; i<itc_src_max; i++)
 		itc_handler[i]=NULL;
 
 	itc_regs -> INTFRC = 0;
@@ -92,6 +92,35 @@ inline void itc_set_handler (itc_src_t src, itc_handler_t handler)
 inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
 {
 	/* ESTA FUNCIÓN SE DEFINIRÁ EN LA PRÁCTICA 8 */
+	int32_t sc;
+	sc=excep_disable_ints ();
+	
+	if(priority == itc_priority_normal){
+		int_regs -> INTTYPE &= ~(1<<src);
+
+	}else if (priority == itc_priority_fast){
+
+			uint32_t n_bit;
+			uint32_t inttype= int_regs->INTTYPE;
+			bool irq_fast=false;
+			for ( n_bit=0; n_bit<itc_src_max && !irq_fast ; n_bit++){
+				if(inttype & 1 == 1)
+					irq_fast=true;
+				inttype = inttype << 1;
+			}
+			/* Aqui ya sabemos que manejador utiliza la interrupcion fas*/
+			uint32_t src_fast=0;
+			src_fast = src_fast >> n_bit;
+
+			/* Desactivamos la interrupcion fas aplicandole la mascara*/
+			int_regs -> INTTYPE !& = src_fast;
+
+			/* Acitvacion de la prioridad fast en la interrupcion con identifador src*/
+			int_regs -> INTTYPE = src; 
+		
+				
+		}
+	excep_restore_ints (sc);
 
 }
 
@@ -149,7 +178,7 @@ inline void itc_force_interrupt (itc_src_t src)
  * Desfuerza una interrupción con propósitos de depuración
  * @param src		Identificador de la fuente
 		
-	ok 
+	ok
 */
 inline void itc_unforce_interrupt (itc_src_t src)
 {
